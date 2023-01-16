@@ -18,7 +18,7 @@ AccelStepper stepper2(AccelStepper::DRIVER, stepPin2, dirPin2);
 #define delayBetweenReads 25 // Delay between reads
 
 // Reset button
-#define resetButton 6 // Reset button used to
+#define resetButton 6 // Reset button used to initialize the machine
 
 int distance;
 int previousDistance;
@@ -68,6 +68,10 @@ void loop()
     distance += 4095 - analogRead(analogPin);
   }
   distance /= averageReads;
+
+  Serial.print(previousDistance);
+  Serial.print(" <-before---after-> ");
+  Serial.println(distance);
 
   // if the distance is more than 1000, move the motors
   // also to stop the motors from turning on the falling edge we set a timer
