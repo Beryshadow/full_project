@@ -96,3 +96,27 @@ void loop()
 // Stepper motor 2:
 // A4988 Driver pin 1 -> Arduino pin 4
 // A4988 Driver pin 2 -> Arduino pin 5
+/*
+
+this works
+const int stepPin = 19;
+const int dirPin = 18;
+
+void setup() {
+  pinMode(stepPin, OUTPUT);
+  pinMode(dirPin, OUTPUT);
+}
+
+void loop() {
+  digitalWrite(dirPin, HIGH);
+
+  for (int x = 0; x < 400; x++) {
+    digitalWrite(stepPin, HIGH);
+    delayMicroseconds(500);
+    digitalWrite(stepPin, LOW);
+    delayMicroseconds(500);
+  }
+  delay(1000);
+}
+
+*/
