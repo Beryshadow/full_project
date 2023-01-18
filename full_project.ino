@@ -30,8 +30,7 @@ void moveMotors(int steps)
   int rot1;
   int rot2;
   // set la direction des moteurs
-  if direction
-    == 1
+  if (direction == 1)
     {
       rot1 = 1;
       rot2 = 0;
