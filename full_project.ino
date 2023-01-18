@@ -13,7 +13,7 @@
 
 // button
 #define boutonForward 13    // Bouton qui descend le scraper
-#define boutonBackward 12;  // Bouton qui monte le scraper
+#define boutonBackward 12   // Bouton qui monte le scraper
 int defaultBoutonState LOW; // Etat par défaut du bouton
 
 // Indicator led
