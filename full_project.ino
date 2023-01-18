@@ -1,54 +1,74 @@
-#include <AccelStepper.h>
-
-// Steppers
 #define dirPin1 2  // Motor1 direction pin
 #define stepPin1 3 // Motor1 sptep pin
 
 #define dirPin2 4  // Motor2 direction pin
 #define stepPin2 5 // Motor2 step pin
 
-#define delayBetweenSteps 10 // Delay between steps
-
-AccelStepper stepper1(AccelStepper::DRIVER, stepPin1, dirPin1);
-AccelStepper stepper2(AccelStepper::DRIVER, stepPin2, dirPin2);
+#define delayBetweenSteps 400 // Delay between steps microsecondes
 
 // distance sensor
-#define analogPin 34         // Analog pin for the distance sensor
-#define averageReads 10      // Number of reads to average
-#define delayBetweenReads 25 // Delay between reads
+#define analogPin A0         // Pin analogique pour le capteur de distance
+#define averageReads 10      // Montant de lectures pour la moyenne
+#define delayBetweenReads 10 // Délai entre les lectures en mico-secondes
 
-// Reset button
-#define resetButton 6 // Reset button used to initialize the machine
+// button
+#define boutonForward 13    // Bouton qui descend le scraper
+#define boutonBackward 12;  // Bouton qui monte le scraper
+int defaultBoutonState LOW; // Etat par défaut du bouton
 
+// Indicator led
+#define indicatorLed 10 // Pin pour l'indicateur LED
+
+// global variables
 int distance;
 int previousDistance;
 
-// function to move the two motors at once in the same direction
+// fonction pour faire tourner les moteurs
 void moveMotors(int steps)
 {
-  stepper1.for (int i = 0; i < abs(steps); i++)
+  // set la direction des moteurs
+  if (steps < 0)
   {
-    stepper1.move((steps > 0) ? 1 : -1);
-    stepper2.move((steps > 0) ? 1 : -1);
-    delay(delayBetweenSteps);
+    digitalWrite(dirPin1, LOW);
+    digitalWrite(dirPin2, LOW);
+  }
+  else
+  {
+    digitalWrite(dirPin1, HIGH);
+    digitalWrite(dirPin2, HIGH);
+  }
+  for (int i = 0; i < abs(steps); i++)
+  {
+    digitalWrite(stepPin1, HIGH);
+    digitalWrite(stepPin2, HIGH);
+    delayMicroseconds(delayBetweenSteps);
+    digitalWrite(stepPin1, LOW);
+    digitalWrite(stepPin2, LOW);
+    delayMicroseconds(delayBetweenSteps);
   }
 }
 
 void setup()
 {
-  stepper1.setMaxSpeed(1000);
-  stepper1.setAcceleration(50);
-  stepper1.setSpeed(1000);
+  // on enables les pin digitale
+  pinMode(dirPin1, OUTPUT);
+  pinMode(stepPin1, OUTPUT);
+  pinMode(dirPin2, OUTPUT);
+  pinMode(stepPin2, OUTPUT);
+  pinMode(boutonForward, INPUT);
+  pinMode(indicatorLed, OUTPUT);
 
-  stepper2.setMaxSpeed(1000);
-  stepper2.setAcceleration(50);
-  stepper2.setSpeed(1000);
+  // on met toutes les pin digitale à LOW
+  digitalWrite(dirPin1, LOW);
+  digitalWrite(stepPin1, LOW);
+  digitalWrite(dirPin2, LOW);
+  digitalWrite(stepPin2, LOW);
+  digitalWrite(indicatorLed, LOW);
 
-  // pinMode(LED_BUILTIN, OUTPUT);
+  // pour pouvoir imprimer sur le moniteur en série
+  Serial.begin(9600);
 
-  Serial.begin(115200);
-
-  // taking the average of the distance sensor readings
+  // on prend une lecture pour le capteur de distance
   for (int i = 0; i < averageReads; i++)
   {
     delay(delayBetweenReads);
@@ -66,6 +86,10 @@ void loop()
   {
     delay(delayBetweenReads);
     distance += 4095 - analogRead(analogPin);
+    if (digitalRead(boutonForward) == !defaultBoutonState)
+    {
+      break;
+    }
   }
   distance /= averageReads;
 
@@ -73,50 +97,30 @@ void loop()
   Serial.print(" <-before---after-> ");
   Serial.println(distance);
 
-  // if the distance is more than 1000, move the motors
-  // also to stop the motors from turning on the falling edge we set a timer
-  if (abs(distance - previousDistance) > 1000)
+  // ici l'utilisateur veut utiliser le scraper
+  if (/*(abs(distance - previousDistance) > 1000) ||*/ (digitalRead(boutonForward) == !defaultBoutonState))
   {
-    moveMotors(100); // could make this adapt based on distance of the sensor
+    digitalWrite(indicatorLed, HIGH);
+    moveMotors(9000);
     delay(1000);
+    while (digitalRead(boutonForward) == !defaultBoutonState)
+    {
+      moveMotors(10);
+    }
+  } // ici l'utilisateur veut faire remonter le scraper
+  else if (digitalRead(boutonBackward) == !defaultBoutonState)
+  {
+    digitalWrite(indicatorLed, HIGH);
+    moveMotors(-9000);
+    delay(1000);
+    while (digitalRead(boutonBackward) == !defaultBoutonState)
+    {
+      moveMotors(-10);
+    }
+  }
+  else
+  {
+    digitalWrite(indicatorLed, LOW);
   }
   previousDistance = distance;
 }
-
-// Distance sensor:
-// VCC -> 5V
-// Trig -> 8
-// Echo -> 9
-// GND -> GND
-
-// Stepper motor 1:
-// A4988 Driver pin 1 -> Arduino pin 2
-// A4988 Driver pin 2 -> Arduino pin 3
-
-// Stepper motor 2:
-// A4988 Driver pin 1 -> Arduino pin 4
-// A4988 Driver pin 2 -> Arduino pin 5
-/*
-
-this works
-const int stepPin = 19;
-const int dirPin = 18;
-
-void setup() {
-  pinMode(stepPin, OUTPUT);
-  pinMode(dirPin, OUTPUT);
-}
-
-void loop() {
-  digitalWrite(dirPin, HIGH);
-
-  for (int x = 0; x < 400; x++) {
-    digitalWrite(stepPin, HIGH);
-    delayMicroseconds(500);
-    digitalWrite(stepPin, LOW);
-    delayMicroseconds(500);
-  }
-  delay(1000);
-}
-
-*/
