@@ -14,8 +14,7 @@
 // button
 #define boutonForward 13    // Bouton qui descend le scraper
 #define boutonBackward 12   // Bouton qui monte le scraper
-int defaultBoutonState LOW; // Etat par défaut du bouton
-
+int defaultBoutonState; // Etat par défaut du bouton
 // Indicator led
 #define indicatorLed 10 // Pin pour l'indicateur LED
 
@@ -50,6 +49,7 @@ void moveMotors(int steps)
 
 void setup()
 {
+  defaultBoutonState = LOW;
   // on enables les pin digitale
   pinMode(dirPin1, OUTPUT);
   pinMode(stepPin1, OUTPUT);
