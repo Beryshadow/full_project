@@ -4,6 +4,8 @@
 #define dirPin2 4  // Motor2 direction pin
 #define stepPin2 5 // Motor2 step pin
 
+#define direction 1
+
 #define delayBetweenSteps 400 // Delay between steps microsecondes
 
 // distance sensor
@@ -12,9 +14,9 @@
 #define delayBetweenReads 10 // Délai entre les lectures en mico-secondes
 
 // button
-#define boutonForward 13    // Bouton qui descend le scraper
-#define boutonBackward 12   // Bouton qui monte le scraper
-int defaultBoutonState; // Etat par défaut du bouton
+#define boutonForward 13  // Bouton qui descend le scraper
+#define boutonBackward 12 // Bouton qui monte le scraper
+int defaultBoutonState;   // Etat par défaut du bouton
 // Indicator led
 #define indicatorLed 10 // Pin pour l'indicateur LED
 
@@ -25,16 +27,29 @@ int previousDistance;
 // fonction pour faire tourner les moteurs
 void moveMotors(int steps)
 {
+  int rot1;
+  int rot2;
   // set la direction des moteurs
+  if direction
+    == 1
+    {
+      rot1 = 1;
+      rot2 = 0;
+    }
+  else
+  {
+    rot1 = 0;
+    rot2 = 1;
+  }
   if (steps < 0)
   {
-    digitalWrite(dirPin1, LOW);
-    digitalWrite(dirPin2, LOW);
+    digitalWrite(dirPin1, rot1);
+    digitalWrite(dirPin2, rot1);
   }
   else
   {
-    digitalWrite(dirPin1, HIGH);
-    digitalWrite(dirPin2, HIGH);
+    digitalWrite(dirPin1, rot2);
+    digitalWrite(dirPin2, rot2);
   }
   for (int i = 0; i < abs(steps); i++)
   {
