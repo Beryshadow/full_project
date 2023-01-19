@@ -19,6 +19,9 @@
 int defaultBoutonState;   // Etat par défaut du bouton
 // Indicator led
 #define indicatorLed 10 // Pin pour l'indicateur LED
+int ledState; // Etat de la led
+#define blinkDelay 500 // delais entre les blink
+int blink; // counter
 
 // global variables
 int distance;
@@ -50,6 +53,7 @@ void moveMotors(int steps)
     digitalWrite(dirPin1, rot2);
     digitalWrite(dirPin2, rot2);
   }
+  int current = millis();
   for (int i = 0; i < abs(steps); i++)
   {
     digitalWrite(stepPin1, HIGH);
@@ -58,7 +62,17 @@ void moveMotors(int steps)
     digitalWrite(stepPin1, LOW);
     digitalWrite(stepPin2, LOW);
     delayMicroseconds(delayBetweenSteps);
+    if (abs(current - millis()) > blink) {
+      if (ledState == 1) {
+        ledState = 0;
+      } else {
+        ledState = 1;
+      }
+      digitalWrite(indicatorLed, ledState);
+      int current = millis();
+    }
   }
+  digitalWrite(indicatorLed, LOW);
 }
 
 void setup()
